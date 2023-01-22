@@ -36,10 +36,25 @@ enf_declaracion_obligatoria <- read_delim("INPUT/DATA/enfermedades-de-declaracio
 
 
 enf_declaracion_obligatoria <- enf_declaracion_obligatoria %>%
-  select(1,2,9,15,17,23,24,26,28,30,32,35,37,45,46) %>%
-  rename(Botulismo = 'Casos - Botulismo',
-         )
+  rename( Año = 'Año',
+          Botulismo = 'Casos - Botulismo',
+         Fiebre_dengue = 'Casos - Fiebre del Dengue',
+         Enfermedad_meningocitica = 'Casos - Enfermedad meningocócica',
+         Fiebre_tifoidea_paratifoidea = 'Casos - Fiebres tifoidea y paratifoidea',
+         Giardiasis = 'Casos - Giardiasis',
+         HepatitisB = 'Casos - Hepatitis B',
+         Hidatidosis = 'Casos - Hidatidosis',
+         Gripe_aviar = 'Casos - Infección humana por virus de la gripe aviar',
+         Nuevo_virus_gripe = 'Casos - Infección por nuevo virus de la gripe A(H1N1)',
+         Leishmaniasis = 'Casos - Leishmaniasis',
+         Hepatitis_víricas_otras = 'Casos - Otras hepatitis víricas',
+         Paludismo = 'Casos - Paludismo') %>%
+  select(1,2,3,9,15,23,24,28,30,32,35,37,45,46)
 
 
 View(enf_declaracion_obligatoria)
+
+
+
+#Por último, vamos a cargar 
     
