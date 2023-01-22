@@ -14,16 +14,19 @@ tasa_mort_centrosalud <- read_delim("INPUT/DATA/tasa-mortalidad-por-centros-de-s
 
 tasa_mort_centrosalud <- tasa_mort_centrosalud [168703:175618, ]
 
-View (tasa_mort_centrosalud)
-
 
 tasa_mort_centrosalud <- tasa_mort_centrosalud %>% 
-  rename(TASA_TANTO_POR_CIENTO = 'TASAx100',
-         ZONA_BASICA_SALUD = 'zbs_geo') %>%
+  rename(Fecha = 'FECHA',
+         Centro = 'CENTRO',
+         Fallecidos = 'FALLECIDOS',
+         Tasa_tanto_por_ciento = 'TASAx100',
+         Zona_basica_salud = 'zbs_geo',
+         Provincia = 'PROVINCIA',
+         Municipio = 'MUNICIPIO') %>%
   select(1,5:7, 10, 11, 13)
 
 
-
+View (tasa_mort_centrosalud)
 
 
 # Ahora vamos a cargar la tabla "enfermedades-de-declaracion-obligatoria-casos-y-tasas-por-provincia.csv" de la carpeta DATA que se encuentra en nuestro repositorio:
@@ -36,7 +39,7 @@ enf_declaracion_obligatoria <- read_delim("INPUT/DATA/enfermedades-de-declaracio
 
 
 enf_declaracion_obligatoria <- enf_declaracion_obligatoria %>%
-  rename( Año = 'Año',
+  rename( Fecha = 'Año',
           Botulismo = 'Casos - Botulismo',
          Fiebre_dengue = 'Casos - Fiebre del Dengue',
          Enfermedad_meningocitica = 'Casos - Enfermedad meningocócica',
@@ -73,3 +76,38 @@ fallecimientos_2017_2020 <- fallecimientos_2017_2020 %>%
 
 
 View(fallecimientos_2017_2020) 
+
+
+
+
+# Representamos cada una de las tablas de forma gráfica para hacernos una idea más realista de los datos que estas recogen.
+
+tasa_mort_centrosalud %>% 
+  ggplot(data = ., aes(x = Fecha, y = Fallecidos)) +
+  geom_violin(aes(fill=Provincia))+
+  theme_bw() + 
+  labs(
+    x = "Fecha del fallecimiento",
+    y = "Numero de personas",
+    title = "Tasa de mortalidad por cada centro de salud ",
+    colour = "Provincia"
+  )
+
+
+geom_bar(stat = "identity", aes(fill = Enfermedades))
+
+
+
+enf_declaracion_obligatoria %>% 
+  ggplot(data = ., aes(x = Fecha, y = Giardiasis)) +
+  geom_violin(aes(fill= Provincia))+
+  theme_bw() + 
+  labs(
+    x = "Fecha de la declaración",
+    y = "Numero de personas contagiadas",
+    title = "Número de personas que se contagian de Giardasis en Castilla y León",
+    colour = "Provincia"
+  )
+
+
+
