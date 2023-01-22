@@ -56,5 +56,20 @@ View(enf_declaracion_obligatoria)
 
 
 
-#Por último, vamos a cargar 
-    
+#Por último, vamos a cargar la tabla 'fallecimientos-2017-2020-meses.csv', la cual se encuentra en la carpeta 'DATA' de nuestro repositorio:
+
+fallecimientos_2017_2020 <- read_delim("INPUT/DATA/fallecimientos-2017-2020-meses.csv",
+                                          delim = ";", escape_double= FALSE, trim_ws = TRUE)
+
+
+
+
+
+# Formateamos la tabla para darla el aspecto que deseemos:
+
+fallecimientos_2017_2020 <- fallecimientos_2017_2020 %>%
+  select(1,2,4:8)
+
+
+
+View(fallecimientos_2017_2020) 
