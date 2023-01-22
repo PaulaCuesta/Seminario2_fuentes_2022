@@ -71,7 +71,15 @@ fallecimientos_2017_2020 <- read_delim("INPUT/DATA/fallecimientos-2017-2020-mese
 # Formateamos la tabla para darla el aspecto que deseemos:
 
 fallecimientos_2017_2020 <- fallecimientos_2017_2020 %>%
-  select(1,2,4:8)
+  select(1,2,4:8) %>%
+  rename(Año = 'año',
+         Mes = 'mes',
+         Provincia = 'provincia',
+         Pacientes_total = 'pacientes_total',
+         Tasa_total_pacientes = "tasa_pacientes_total",
+         Pacientes_residencias = 'pacientes_residencias',
+         Tasa_residencia = 'tasa_pacientes_residencias'
+         )
 
 
 
@@ -98,6 +106,8 @@ geom_bar(stat = "identity", aes(fill = Enfermedades))
 
 
 
+# Para basarnos en una enfermedad concreta, vamos a basarnos en Giardiasis, ya que hemos visto que en nuestra comunidad autónoma presenta un gran número de casos.
+
 enf_declaracion_obligatoria %>% 
   ggplot(data = ., aes(x = Fecha, y = Giardiasis)) +
   geom_violin(aes(fill= Provincia))+
@@ -111,3 +121,14 @@ enf_declaracion_obligatoria %>%
 
 
 
+
+fallecimientos_2017_2020 %>% 
+  ggplot(data = ., aes(x = Año, y = Pacientes_residencias)) +
+  geom_bar(stat = 'identity', aes(fill= Provincia))+
+  theme_bw() + 
+  labs(
+    x = 'Año del fallecimiento',
+    y = "Pacientes fallecidos en residencias",
+    title = "Número de personas que han muerto en residencias por año",
+    colour = "Provincia"
+  )
