@@ -119,7 +119,7 @@ tasa_mort_centrosalud <- tasa_mort_centrosalud %>%
 
 
 Para la segunda tabla de datos:
-``` {r echo = TRUE}
+``` {r echo = TRUE }
 enf_declaracion_obligatoria <- enf_declaracion_obligatoria %>%
   rename( Fecha = 'Año',
           Botulismo = 'Casos - Botulismo',
@@ -145,8 +145,7 @@ Para la última tabla:
 
 fallecimientos_2017_2020 <- fallecimientos_2017_2020 %>%
   select(1,2,4:8) %>%
-  rename(Año = 'año',
-         Mes = 'mes',
+  rename(Mes = 'mes',
          Provincia = 'provincia',
          Pacientes_total = 'pacientes_total',
          Tasa_total_pacientes = "tasa_pacientes_total",
@@ -195,7 +194,7 @@ tasamort_fallecimientos <- tasamort_enfermedades %>%
   filter (Mes == "Febrero")
 
 
-````
+```
 
 
 # Resultados
@@ -217,7 +216,7 @@ enfermedad_fallecimientos %>%
     y = "Número total de pacientes fallecidos",
     title = "Número de pacientes fallecidos en función del contagio de enfermedades"
   )
-````
+```
 
 
 A continuación haremos lo mismo con el número de fallecidos totales según la zona básica de salud, para así poder determinar que zona tiene una mayor tasa de mortalidad o su población tiene un peor estado de salud, lo que hace que haya más tasa de mortalidad
@@ -233,7 +232,7 @@ tasamort_fallecimientos %>%
     title = "Número de pacientes fallecidos en función de la zona de salud a la que pertenecen"
   )
 
-````
+```
 
 
 
