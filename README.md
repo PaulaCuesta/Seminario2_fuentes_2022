@@ -5,9 +5,6 @@ date: "2023-01-23"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 
 Soy una estudiante de 3º de Ingeniería de la Salud en la Universidad de Burgos y he hecho un estudio de investigación y análisis de datos para relacionar el número de fallecimientos en la comunidad de Castilla y León con diversos factores como las enfermedades que contraiga la población o la zona básica de salud a la que pertenezcan.
