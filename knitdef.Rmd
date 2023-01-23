@@ -119,24 +119,31 @@ tasa_mort_centrosalud <- tasa_mort_centrosalud %>%
 
 
 Para la segunda tabla de datos:
-``` {r echo = TRUE }
-enf_declaracion_obligatoria <- enf_declaracion_obligatoria %>%
-  rename( Fecha = 'Año',
-          Botulismo = 'Casos - Botulismo',
-         Fiebre_dengue = 'Casos - Fiebre del Dengue',
-         Enfermedad_meningocitica = 'Casos - Enfermedad meningocócica',
-         Fiebre_tifoidea_paratifoidea = 'Casos - Fiebres tifoidea y paratifoidea',
-         Giardiasis = 'Casos - Giardiasis',
-         HepatitisB = 'Casos - Hepatitis B',
-         Hidatidosis = 'Casos - Hidatidosis',
-         Gripe_aviar = 'Casos - Infección humana por virus de la gripe aviar',
-         Nuevo_virus_gripe = 'Casos - Infección por nuevo virus de la gripe A(H1N1)',
-         Leishmaniasis = 'Casos - Leishmaniasis',
-         Hepatitis_víricas_otras = 'Casos - Otras hepatitis víricas)%>%
-  select(1,2,3,9,15,23,24,28,30,32,35,37,45,46))
+
+```{r}
+enf_declaracion_obligatoria <- 
+  enf_declaracion_obligatoria %>%
+  select(1,2,3,9,15,23,24,28,30,32,35,37,45,46)  %>%
+  rename( Fecha = Año,
+          Botulismo = `Casos - Botulismo`,
+         Fiebre_dengue = `Casos - Fiebre del Dengue`,
+         Enfermedad_meningocitica = `Casos - Enfermedad meningocócica`,
+         Fiebre_tifoidea_paratifoidea = `Casos - Fiebres tifoidea y paratifoidea`,
+         Giardiasis = `Casos - Giardiasis`,
+         HepatitisB = `Casos - Hepatitis B`,
+         Hidatidosis = `Casos - Hidatidosis`,
+          Gripe_aviar = `Casos - Infección humana por virus de la gripe aviar`,
+         Paludismo = `Casos - Paludismo`,
+         Nuevo_virus_gripe = `Casos - Infección por nuevo virus de la gripe A(H1N1)`,
+         Leishmaniasis = `Casos - Leishmaniasis`,
+         Hepatitis_víricas_otras = `Casos - Otras hepatitis víricas` ) %>%
+  pivot_longer(cols=c(Botulismo, Fiebre_dengue, Enfermedad_meningocitica, Fiebre_tifoidea_paratifoidea, Giardiasis, HepatitisB, Hidatidosis, Gripe_aviar, Nuevo_virus_gripe, Leishmaniasis, Hepatitis_víricas_otras, Paludismo),
+               names_to = "Enfermedades",
+               values_to = "Contagios")
+```
 
 
-````
+
 
 
 Para la última tabla:
@@ -145,13 +152,13 @@ Para la última tabla:
 
 fallecimientos_2017_2020 <- fallecimientos_2017_2020 %>%
   select(1,2,4:8) %>%
-  rename(Mes = 'mes',
+  rename(Año = 'año',
+         Mes = 'mes',
          Provincia = 'provincia',
          Pacientes_total = 'pacientes_total',
          Tasa_total_pacientes = "tasa_pacientes_total",
          Pacientes_residencias = 'pacientes_residencias',
-         Tasa_residencia = 'tasa_pacientes_residencias'
-         )
+         Tasa_residencia = 'tasa_pacientes_residencias')
 
 ```
 
@@ -189,7 +196,7 @@ tasamort_fallecimientos <-
             by = c ("Provincia" ="Provincia"))
 
 
-tasamort_fallecimientos <- tasamort_enfermedades %>%
+tasamort_fallecimientos <- tasamort_fallecimientos %>%
   filter(Año == 2021) %>%
   filter (Mes == "Febrero")
 
