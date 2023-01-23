@@ -23,8 +23,8 @@ tasa_mort_centrosalud <- tasa_mort_centrosalud %>%
          Zona_basica_salud = 'zbs_geo',
          Provincia = 'PROVINCIA',
          Municipio = 'MUNICIPIO') %>%
-  select(1,5:7, 10, 11, 13)
-
+  select(1,5:7, 10, 11, 13) %>%
+  filter (Fallecidos >0)
 
 View (tasa_mort_centrosalud)
 
@@ -52,7 +52,10 @@ enf_declaracion_obligatoria <- enf_declaracion_obligatoria %>%
          Leishmaniasis = 'Casos - Leishmaniasis',
          Hepatitis_víricas_otras = 'Casos - Otras hepatitis víricas',
          Paludismo = 'Casos - Paludismo') %>%
-  select(1,2,3,9,15,23,24,28,30,32,35,37,45,46)
+  select(1,2,3,9,15,23,24,28,30,32,35,37,45,46) %>%
+  pivot_longer(cols=c(Botulismo, Fiebre_dengue, Enfermedad_meningocitica, Fiebre_tifoidea_paratifoidea, Giardiasis, HepatitisB, Hidatidosis, Gripe_aviar, Nuevo_virus_gripe, Leishmaniasis, Hepatitis_víricas_otras, Paludismo),
+               names_to = "Enfermedades",
+               values_to = "Contagios")
 
 
 View(enf_declaracion_obligatoria)
@@ -70,6 +73,8 @@ fallecimientos_2017_2020 <- read_delim("INPUT/DATA/fallecimientos-2017-2020-mese
 
 # Formateamos la tabla para darla el aspecto que deseemos:
 
+
+
 fallecimientos_2017_2020 <- fallecimientos_2017_2020 %>%
   select(1,2,4:8) %>%
   rename(Año = 'año',
@@ -80,10 +85,12 @@ fallecimientos_2017_2020 <- fallecimientos_2017_2020 %>%
          Pacientes_residencias = 'pacientes_residencias',
          Tasa_residencia = 'tasa_pacientes_residencias'
          )
+  
 
 
 
-View(fallecimientos_2017_2020) 
+View(fallecimientos_2017_2020)
+
 
 
 
@@ -92,30 +99,29 @@ View(fallecimientos_2017_2020)
 
 tasa_mort_centrosalud %>% 
   ggplot(data = ., aes(x = Fecha, y = Fallecidos)) +
-  geom_violin(aes(fill=Provincia))+
+  geom_bar(stat = "identity", aes(fill= Provincia))+
   theme_bw() + 
   labs(
     x = "Fecha del fallecimiento",
-    y = "Numero de personas",
+    y = "Numero de personas fallecidas",
     title = "Tasa de mortalidad por cada centro de salud ",
     colour = "Provincia"
   )
 
 
-geom_bar(stat = "identity", aes(fill = Enfermedades))
 
 
 
 # Para basarnos en una enfermedad concreta, vamos a basarnos en Giardiasis, ya que hemos visto que en nuestra comunidad autónoma presenta un gran número de casos.
 
 enf_declaracion_obligatoria %>% 
-  ggplot(data = ., aes(x = Fecha, y = Giardiasis)) +
-  geom_violin(aes(fill= Provincia))+
+  ggplot(data = ., aes(x = Enfermedades, y = Contagios)) +
+  geom_bar(stat = "identity", aes(fill= Provincia))+
   theme_bw() + 
   labs(
-    x = "Fecha de la declaración",
+    x = "Enfermedad que han contradio",
     y = "Numero de personas contagiadas",
-    title = "Número de personas que se contagian de Giardasis en Castilla y León",
+    title = "Número de personas que se contagian de enfermedades de declaración obligatoria en Castilla y León",
     colour = "Provincia"
   )
 
@@ -131,4 +137,69 @@ fallecimientos_2017_2020 %>%
     y = "Pacientes fallecidos en residencias",
     title = "Número de personas que han muerto en residencias por año",
     colour = "Provincia"
+  )
+
+
+
+# Vamos a ver los datos que tienen en común las tablas para poder relacionarlas
+
+levels(factor(tasa_mort_centrosalud$Provincia))
+levels(factor(enf_declaracion_obligatoria$Provincia))
+levels(factor(fallecimientos_2017_2020$Provincia))
+
+
+# Podremos relacionar a las personas fallecidas en función de la enfermedad que han contraido
+
+
+enfermedad_fallecimientos <- 
+  enf_declaracion_obligatoria %>%
+  select (Provincia, Enfermedades, Contagios) %>%
+  full_join(x = .,
+            y = fallecimientos_2017_2020 %>%
+              select (Provincia, Pacientes_total, Pacientes_residencias),
+            by = c ("Provincia" ="Provincia"))
+
+View (enfermedad_fallecimientos)
+
+
+# Vamos a representar una gráfica que relacione los contagios con el número de fallecidos
+
+enfermedad_fallecimientos %>%
+  filter(Contagios >1) %>%
+  ggplot (data = ., aes(x = Contagios, y = Pacientes_total)) +
+  geom_point (aes(color = Provincia)) + 
+  labs (
+    x = "Número de contagios que se han producido de cada enfermedad",
+    y = "Número total de pacientes fallecidos",
+    title = "Número de pacientes fallecidos en función del contagio de enfermedades"
+  )
+
+
+
+# Ahora vamos a ver el número total de pacientes fallecidos en cada provincia en el mes de Febrero del año 2021, y como se distribuye esto en las zonas básicas de salud, pudiendo así saber que zonas son las que presentan un mayor nivel de mortalidad
+
+
+tasamort_enfermedades <- 
+  tasa_mort_centrosalud %>%
+  select (Provincia, Zona_basica_salud, Fallecidos) %>%
+  full_join(x = .,
+            y = fallecimientos_2017_2020 %>%
+              select (Provincia, Año, Mes, Pacientes_total, Pacientes_residencias),
+            by = c ("Provincia" ="Provincia"))
+
+
+tasamort_enfermedades <- tasamort_enfermedades %>%
+  filter(Año == 2021) %>%
+  filter (Mes == "Febrero")
+
+View (tasamort_enfermedades)
+
+
+tasamort_enfermedades %>%
+  ggplot (data = ., aes(x = Pacientes_residencias, y = Zona_basica_salud)) +
+  geom_point (aes(color = Provincia)) + 
+  labs (
+    x = "Número de pacientes que han fallecido durante este mes en residencias",
+    y = "Zonas básicas de salud en las que se han producido las muertes",
+    title = "Número de pacientes fallecidos en función de la zona de salud a la que pertenecen"
   )
