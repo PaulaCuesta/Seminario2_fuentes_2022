@@ -179,7 +179,7 @@ enfermedad_fallecimientos %>%
 # Ahora vamos a ver el número total de pacientes fallecidos en cada provincia en el mes de Febrero del año 2021, y como se distribuye esto en las zonas básicas de salud, pudiendo así saber que zonas son las que presentan un mayor nivel de mortalidad
 
 
-tasamort_enfermedades <- 
+tasamort_fallecimientos <- 
   tasa_mort_centrosalud %>%
   select (Provincia, Zona_basica_salud, Fallecidos) %>%
   full_join(x = .,
@@ -188,15 +188,15 @@ tasamort_enfermedades <-
             by = c ("Provincia" ="Provincia"))
 
 
-tasamort_enfermedades <- tasamort_enfermedades %>%
+tasamort_fallecimientos <- tasamort_enfermedades %>%
   filter(Año == 2021) %>%
   filter (Mes == "Febrero")
 
 View (tasamort_enfermedades)
 
 
-tasamort_enfermedades %>%
-  ggplot (data = ., aes(x = Pacientes_residencias, y = Zona_basica_salud)) +
+tasamort_fallecimientos %>%
+  ggplot (data = ., aes(x = Pacientes_total, y = Zona_basica_salud)) +
   geom_point (aes(color = Provincia)) + 
   labs (
     x = "Número de pacientes que han fallecido durante este mes en residencias",
