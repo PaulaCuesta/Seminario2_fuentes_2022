@@ -1,0 +1,251 @@
+---
+title: "RelaciónFallecidos"
+author: 
+- name: "Paula Cuesta"
+  affiliation: "Universidad de Burgos, Grado en Ingeniería de la Salud"
+date: "2023-01-23"
+output: 
+html_document:
+  df_print: paged
+  theme: readable
+  toc: yes
+  toc_float: yes
+  pdf_document:
+    toc: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Quiero comprobar si hay algún tipo de relación en la Comunidad Autónoma de Castilla y León entre el contagio de enfermedades de declaración obligatoria y el número de fallecimientos.
+
+
+[Enlace de mi repositorio de Github](https://github.com/PaulaCuesta/Seminario2_fuentes_2022)
+
+
+#Introducción 
+
+En este trabajo de investigación y análisis de datos lo que pretendo es buscar una relación entre el contagio de enfermedades de declaración obligatoria en la Comunidad de Castilla y León y la tasa de mortalidad, tanto en las residencias como fuera de ellas. Además, este número de fallecimientos también lo vamos a relacionar en función de las distintas zonas básicas de salud en las que se divide la Comunidad, por lo que de esta forma podremos inferir la enfermedad que causa un mayor número de muertes entre la población castellana, así como si hay alguna zona más propensa a morirse por diversos factores como pueden ser ambientales, genéticos...
+Para llevar a cabo este experimento lo que hemos hecho es buscar información y datos sobre los distintos aspectos que vamos a tratar:
+- El número de fallecimientos según la zona básica de salud y concretamente el centro de salud
+- El número de contagiados de cada enfermedad
+- El número de fallecimientos en los últimos años tanto en las residencias como fuera de ellas.
+
+Además, este estudio le hemos realizando dividiendo a la población en función de la provincia de la que proceden, para tener un estudio más permenorizado de la población.
+
+En este tipo de relaciones se trabaja de forma diaria, por lo que vamos a indagar en ello para conocer un poco más acerca de este tipo de relaciones.
+
+
+
+# Objetivos
+- Determinar si en Castilla y León si existe alguna provincia donde la tasa de mortalidad sea más alta
+- Determinar si dentro de las provincias existen zonas básicas de salud con mayor número de fallecimientos
+- Saber si el contagio de enfermedades de declaración obligatoria se encuentra estrechamente relacionado con el fallecimiento de personas o no.
+- Conocer si la tasa de mortalidad por causa de dichas enfermedades se centra sobre todo en las personas que viven en residencias, ya que su sistema inmunitario probablemente se encontrará más debilitado.
+
+
+#Métodos
+
+## Carga de paquetes
+
+Como queremos cargar nuestros datos en la aplicación de Rstudio para el posterior análisis de los mismos ha sido necesario cargar paquetes que nos permitiesen trabajar con los mismos. Estos paquetes han sido los siguientes:
+
+
+```  {r message = FALSE, warning = FALSE}
+
+library (readxl)
+library (dplyr)
+library (tidyverse)
+
+```
+
+
+## Carga de datos
+
+Importamos nuestros datos, los cuales se encuentran recogidos en formatos de tipo .csv
+
+En un primer momento cargamos la tabla que contiene los datos referidos al número de fallecimientos por día en cada centro de salud y que divide los datos en función de la provincia de procedencia y la zona básica de salud a la que pertenece, además de por la fecha de toma de los datos.
+
+```  {r message = FALSE, warning = FALSE}
+tasa_mort_centrosalud <- read_delim("INPUT/DATA/tasa-mortalidad-por-centros-de-salud.csv",
+                                    delim = ";", escape_double= FALSE, trim_ws = TRUE)
+
+```
+
+
+Los datos con el número de contagios de cada enfermedad de declaración obligatoria por fecha y por provincia de procedencia
+```  {r message = FALSE, warning = FALSE}
+
+enf_declaracion_obligatoria <- read_delim("INPUT/DATA/enfermedades-de-declaracion-obligatoria-casos-y-tasas-por-provincia.csv",
+                                    delim = ";", escape_double= FALSE, trim_ws = TRUE)
+```
+
+
+Por último cargamos los datos que continen el número de fallecidos por meses en residencias y fuera de ellas:
+
+```  {r message = FALSE, warning = FALSE}
+
+fallecimientos_2017_2020 <- read_delim("INPUT/DATA/fallecimientos-2017-2020-meses.csv",
+                                          delim = ";", escape_double= FALSE, trim_ws = TRUE)
+```
+
+
+## Remodelado de los datos
+
+Hemos cambiado un poco el aspecto de los datos que nos aparecían para que el nombre de los mismos fueran sintácticos, para eliminar aquellas columnas que no eran de nuestro interés, para acotarlos en el tiempo según las comparaciones que fuésemos a hacer...
+
+
+Para la primera tabla de datos que hemos cargado:
+
+```` {r echo = TRUE}
+
+tasa_mort_centrosalud <- tasa_mort_centrosalud [168703:175618, ]
+
+
+tasa_mort_centrosalud <- tasa_mort_centrosalud %>% 
+  rename(Fecha = 'FECHA',
+         Centro = 'CENTRO',
+         Fallecidos = 'FALLECIDOS',
+         Tasa_tanto_por_ciento = 'TASAx100',
+         Zona_basica_salud = 'zbs_geo',
+         Provincia = 'PROVINCIA',
+         Municipio = 'MUNICIPIO') %>%
+  select(1,5:7, 10, 11, 13) %>%
+  filter (Fallecidos >0)
+````
+
+
+Para la segunda tabla de datos:
+``` {r echo = TRUE}
+enf_declaracion_obligatoria <- enf_declaracion_obligatoria %>%
+  rename( Fecha = 'Año',
+          Botulismo = 'Casos - Botulismo',
+         Fiebre_dengue = 'Casos - Fiebre del Dengue',
+         Enfermedad_meningocitica = 'Casos - Enfermedad meningocócica',
+         Fiebre_tifoidea_paratifoidea = 'Casos - Fiebres tifoidea y paratifoidea',
+         Giardiasis = 'Casos - Giardiasis',
+         HepatitisB = 'Casos - Hepatitis B',
+         Hidatidosis = 'Casos - Hidatidosis',
+         Gripe_aviar = 'Casos - Infección humana por virus de la gripe aviar',
+         Nuevo_virus_gripe = 'Casos - Infección por nuevo virus de la gripe A(H1N1)',
+         Leishmaniasis = 'Casos - Leishmaniasis',
+         Hepatitis_víricas_otras = 'Casos - Otras hepatitis víricas)%>%
+  select(1,2,3,9,15,23,24,28,30,32,35,37,45,46))
+
+
+````
+
+
+Para la última tabla:
+
+``` {r echo= TRUE}
+
+fallecimientos_2017_2020 <- fallecimientos_2017_2020 %>%
+  select(1,2,4:8) %>%
+  rename(Año = 'año',
+         Mes = 'mes',
+         Provincia = 'provincia',
+         Pacientes_total = 'pacientes_total',
+         Tasa_total_pacientes = "tasa_pacientes_total",
+         Pacientes_residencias = 'pacientes_residencias',
+         Tasa_residencia = 'tasa_pacientes_residencias'
+         )
+
+```
+
+
+## Unión de los datos
+
+Vamos a unir los datos mediante el empleo de un join para poder ver las relaciones entre los mismos.
+
+
+En un primer momento vamos a unir la tabla de datos con los contagios de cada enfermedad con la tabla que presenta tanto los fallecimientos dentro como fuera de las residencias, para que de esta forma podamos saber la influencia de las mismas en los pacientes y como afecta esta en función de su edad y de su estado físico
+
+```` {r include = TRUE, message = FALSE}
+
+enfermedad_fallecimientos <- 
+  enf_declaracion_obligatoria %>%
+  select (Provincia, Enfermedades, Contagios) %>%
+  full_join(x = .,
+            y = fallecimientos_2017_2020 %>%
+              select (Provincia, Pacientes_total, Pacientes_residencias),
+            by = c ("Provincia" ="Provincia"))
+
+````
+
+
+A continuación, vamos a unir el número de fallecimientos que se produce en cada provincia en el mes de febrero del año 2021 en las residencias y fuera de las mismas para relacionarlo con la zona básica de salud en la que se producen más muertes. De esta forma, podremos saber si existe alguna zona en la que las muertes que tengan lugar durante este mes sea mayor, pudiendo si queremos extender esta relación a lo largo del tiempo
+
+```{r include = TRUE, message = FALSE}
+
+tasamort_fallecimientos <- 
+  tasa_mort_centrosalud %>%
+  select (Provincia, Zona_basica_salud, Fallecidos) %>%
+  full_join(x = .,
+            y = fallecimientos_2017_2020 %>%
+              select (Provincia, Año, Mes, Pacientes_total, Pacientes_residencias),
+            by = c ("Provincia" ="Provincia"))
+
+
+tasamort_fallecimientos <- tasamort_enfermedades %>%
+  filter(Año == 2021) %>%
+  filter (Mes == "Febrero")
+
+
+````
+
+
+# Resultados
+
+## Gráficos
+
+Creamos un gráfico resumen de cada una de las dos relaciones que hemos buscado entre los datos, para que de esta forma podamos ver de una forma más visual si están relacionados ambos parámetros, o si por el contrario no tienen nada que ver.
+
+En un primer momento buscamos relacionar el número de contagiados de cada enfermedad con el número de fallecimientos, para ver si estas enfermedades están relacionadas con el número de muertes que se producen.
+
+``` {r echo=TRUE, warning = FALSE}
+
+enfermedad_fallecimientos %>%
+  filter(Contagios >1) %>%
+  ggplot (data = ., aes(x = Contagios, y = Pacientes_total)) +
+  geom_point (aes(color = Provincia)) + 
+  labs (
+    x = "Número de contagios que se han producido de cada enfermedad",
+    y = "Número total de pacientes fallecidos",
+    title = "Número de pacientes fallecidos en función del contagio de enfermedades"
+  )
+````
+
+
+A continuación haremos lo mismo con el número de fallecidos totales según la zona básica de salud, para así poder determinar que zona tiene una mayor tasa de mortalidad o su población tiene un peor estado de salud, lo que hace que haya más tasa de mortalidad
+
+```{r echo = TRUE, warning = FALSE}
+
+tasamort_fallecimientos %>%
+  ggplot (data = ., aes(x = Pacientes_total, y = Zona_basica_salud)) +
+  geom_point (aes(color = Provincia)) + 
+  labs (
+    x = "Número de pacientes que han fallecido durante este mes en residencias",
+    y = "Zonas básicas de salud en las que se han producido las muertes",
+    title = "Número de pacientes fallecidos en función de la zona de salud a la que pertenecen"
+  )
+
+````
+
+
+
+#CONCLUSIÓN
+
+## Relación entre las enfermedades y el número de muertes
+Lo que podemos observar a partir de nuestro gráfico es que el número de contagios que se han producido de cada enfermedad no tiene que ver con la tasa de mortalidad, sino que lo influye es la enfermedad de la cual se han producido los contagios, puesto que existen enfermedades mucho más peligrosas para la vida de las personas que otras. De hecho, podemos observar en el gráfico que las enfermedades que más muertes han causado han sido aquellas que han presentado un número más bajo de contagios ya que han sido enfermedades mucho más agresivas para el organismo de las personas que las han padecido. 
+Por lo tanto, en este caso afirmamos que el número de contagios no está relacionado con la mortalidad de una enfermedad.
+
+
+
+## Relación entre la zona básica de salud y el número de fallecimientos
+
+No podemos determinar que zona básica de salud es en la que se producen más fallecimientos durante el mes de febrero de 2021 solo fijándonos en el gráfico, pero lo que si que podemos saber es que la provincia en la que más cantidad de zonas básicas de salud sufren de una mortalidad más alta de sus personas es Valladolid, donde casi todas sus zonas básicas de salud se encuentran afectadas por la muerte de sus habitantes. Esto puede bien deberse a que es una de las zonas más pobladas de la Comunidad de Castilla y León, o que la calidad de vida de sus habitantes es peor que en otros lugares.
+Para asegurarnos de lo que está pasando en esta provincia deberíamos estudiar la evolución de su población a lo largo de un periodo de tiempo más largo de tiempo, para de esta manera poder saber cual es el motivo por el que se observa una mayor tasa de mortalidad.
