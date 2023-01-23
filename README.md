@@ -9,22 +9,13 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Soy una estudiante de 3º de Ingeniería de la Salud en la Universidad de Burgos y he hecho un estudio de investigación y análisis de datos para relacionar el número de fallecimientos en la comunidad de Castilla y León con diversos factores como las enfermedades que contraiga la población o la zona básica de salud a la que pertenezcan.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
-```
+OBJETIVOS
 
-## Including Plots
+1. Determinar si la enfermedad por patologías de declaración obligatoria tiene relación directa con el número de muertes que se producen entre los habitantes de esta Comunidad Autónoma, y, en concreto, de cada una de las provincias con las que cuenta.
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+2. Determinar si existe alguna zona básica de salud de nuestra comunidad que sea más propensa al fallecimiento de sus habitantes, bien porque se trata de una población mas envejecida, factores genéticos, calidad ambiental...
